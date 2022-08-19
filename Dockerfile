@@ -2,7 +2,9 @@
 # the suite/mirror of the debootstrap command to adjust that.
 FROM ubuntu:22.04
 
-WORKDIR /cs162-vm
+ARG VM_NAME=cs162-student-vm
+
+WORKDIR /$VM_NAME
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -47,4 +49,4 @@ Name=en*\n\
 DHCP=yes\n\
 " > root/etc/systemd/network/99-wildcard.network \
     && chroot root systemctl enable systemd-networkd \
-    && echo 'cs162-student-vm' > root/etc/hostname
+    && echo "$VM_NAME" > root/etc/hostname
