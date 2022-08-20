@@ -56,6 +56,35 @@ DHCP=yes\n\
     && echo "$VM_NAME" > root/etc/hostname
 
 #
+# USER PROGRAMS AND CUSTOMIZATION.
+#
+
+# Install custom programs in rootfs.
+RUN chroot root apt-get install -y \
+        autoconf \
+        binutils \
+        clang \
+        clang-format \
+        cmake \
+        cgdb \
+        curl \
+        exuberant-ctags \
+        g++ \
+        gcc \
+        gdb \
+        git \
+        python3 \
+        python3-pip \
+        qemu-system-x86 \
+        samba \
+        silversearcher-ag \
+        sudo \
+        tmux \
+        valgrind \
+        vim \
+        wget
+
+#
 # DISK IMAGE GENEREATION.
 #
 
