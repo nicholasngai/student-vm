@@ -91,7 +91,13 @@ RUN chroot root apt-get install -y \
         tmux \
         valgrind \
         vim \
-        wget
+        wget \
+    && chroot root pip3 install \
+        grpcio \
+        grpcio-tools \
+        jupyter \
+        matplotlib \
+        numpy
 
 # Download and build bochs.
 ARG BOCHS_VERSION=2.6.7
