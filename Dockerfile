@@ -11,6 +11,7 @@ WORKDIR /$VM_NAME
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
+        curl \
         debootstrap \
         git \
         qemu-system-x86 \
@@ -75,6 +76,10 @@ RUN chroot root apt-get install -y \
         gcc \
         gdb \
         git \
+        libx11-6 \
+        libx11-dev \
+        libxrandr-dev \
+        libxrandr2 \
         python3 \
         python3-pip \
         qemu-system-x86 \
@@ -85,6 +90,23 @@ RUN chroot root apt-get install -y \
         valgrind \
         vim \
         wget
+
+# Download and build bochs.
+ARG BOCHS_VERSION=2.6.7
+RUN curl -L \
+        -o root/usr/local/src/bochs-$BOCHS_VERSION.tar.gz \
+        https://downloads.sourceforge.net/project/bochs/bochs/$BOCHS_VERSION/bochs-$BOCHS_VERSION.tar.gz \
+    && tar -C root/usr/local/src -xzvf root/usr/local/src/bochs-$BOCHS_VERSION.tar.gz \
+    && chroot root sh -c "\
+        cd /usr/local/src/bochs-$BOCHS_VERSION \
+            && ./configure \
+                --enable-gdb-stub \
+                --with-x \
+                --with-x11 \
+                --with-term \
+                --with-nogui \
+            && make install \
+    "
 
 ARG STUDENT_USER=cs162-student
 ARG STUDENT_PASS=pintos
