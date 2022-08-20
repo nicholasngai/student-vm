@@ -61,11 +61,6 @@ DHCP=yes\n\
 # USER PROGRAMS AND CUSTOMIZATION.
 #
 
-ARG STUDENT_USER=cs162-student
-ARG STUDENT_PASS=pintos
-ARG STUDENT_HOME=root/home/$STUDENT_USER
-ARG STUDENT_HOME_CHROOT=/home/$STUDENT_USER
-
 # Install custom programs in rootfs.
 RUN chroot root apt-get install -y \
         autoconf \
@@ -90,6 +85,11 @@ RUN chroot root apt-get install -y \
         valgrind \
         vim \
         wget
+
+ARG STUDENT_USER=cs162-student
+ARG STUDENT_PASS=pintos
+ARG STUDENT_HOME=root/home/$STUDENT_USER
+ARG STUDENT_HOME_CHROOT=/home/$STUDENT_USER
 
 # Student user.
 RUN useradd -R "$PWD/root" -d "$STUDENT_HOME_CHROOT" -m -s /bin/bash "$STUDENT_USER" \
