@@ -99,6 +99,10 @@ RUN chroot root apt-get install -y \
         matplotlib \
         numpy
 
+# Enable servers.
+RUN chroot root systemctl enable \
+    smbd
+
 # Download and build bochs.
 ARG BOCHS_VERSION=2.6.7
 RUN curl -L \
@@ -124,7 +128,8 @@ ARG STUDENT_HOME_CHROOT=/home/$STUDENT_USER
 # Student user.
 RUN useradd -R "$PWD/root" -d "$STUDENT_HOME_CHROOT" -m -s /bin/bash "$STUDENT_USER" \
     && echo "$STUDENT_USER:$STUDENT_PASS" | chpasswd -R "$PWD/root" \
-    && usermod -R "$PWD/root" -aG sudo "$STUDENT_USER"
+    && usermod -R "$PWD/root" -aG sudo "$STUDENT_USER" \
+    && printf '%s\n%s\n' "$STUDENT_PASS" "$STUDENT_PASS" | chroot root smbpasswd -a "$STUDENT_USER"
 
 # Clone and build fzf.
 RUN git clone -b 0.25.0 --depth=1 https://github.com/junegunn/fzf.git "$STUDENT_HOME/.fzf" \
