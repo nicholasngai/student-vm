@@ -10,7 +10,9 @@ WORKDIR /$VM_NAME
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        ca-certificates \
         debootstrap \
+        git \
         qemu-system-x86 \
         qemu-utils \
         parted \
@@ -59,6 +61,11 @@ DHCP=yes\n\
 # USER PROGRAMS AND CUSTOMIZATION.
 #
 
+ARG STUDENT_USER=cs162-student
+ARG STUDENT_PASS=pintos
+ARG STUDENT_HOME=root/home/$STUDENT_USER
+ARG STUDENT_HOME_CHROOT=/home/$STUDENT_USER
+
 # Install custom programs in rootfs.
 RUN chroot root apt-get install -y \
         autoconf \
@@ -83,6 +90,22 @@ RUN chroot root apt-get install -y \
         valgrind \
         vim \
         wget
+
+# Student user.
+RUN useradd -R "$PWD/root" -d "$STUDENT_HOME_CHROOT" -m -s /bin/bash "$STUDENT_USER" \
+    && echo "$STUDENT_USER:$STUDENT_PASS" | chpasswd -R "$PWD/root" \
+    && usermod -R "$PWD/root" -aG sudo "$STUDENT_USER"
+
+# Clone and build fzf.
+RUN git clone -b 0.25.0 --depth=1 https://github.com/junegunn/fzf.git "$STUDENT_HOME/.fzf" \
+    && chroot root chown -R "$STUDENT_USER:$STUDENT_USER" "$STUDENT_HOME_CHROOT/.fzf" \
+    && chroot root su -l -c '~/.fzf/install --no-update-rc --no-completion --key-bindings' "$STUDENT_USER"
+
+# Clone code repos.
+RUN mkdir -p "$STUDENT_HOME/code" \
+    && git clone -o staff https://github.com/Berkeley-CS162/group0.git "$STUDENT_HOME/code/group" \
+    && git clone -o staff https://github.com/Berkeley-CS162/student0.git "$STUDENT_HOME/code/student" \
+    && chroot root chown -R "$STUDENT_USER:$STUDENT_USER" "$STUDENT_HOME_CHROOT/code"
 
 #
 # DISK IMAGE GENEREATION.
