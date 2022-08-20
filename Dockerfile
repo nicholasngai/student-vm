@@ -76,6 +76,7 @@ RUN chroot root apt-get install -y \
         gcc \
         gdb \
         git \
+        golang \
         libx11-6 \
         libx11-dev \
         libxrandr-dev \
@@ -83,6 +84,7 @@ RUN chroot root apt-get install -y \
         python3 \
         python3-pip \
         qemu-system-x86 \
+        rust-all \
         samba \
         silversearcher-ag \
         sudo \
