@@ -213,3 +213,14 @@ RUN dd if=/dev/zero of="$VM_NAME.img.rootfs" bs=1M count=8175 \
         -append "console=ttyS0 root=UUID=$(cat rootfs-uuid) init=/install-grub" \
     && qemu-img convert -f raw -O qcow2 "$VM_NAME.img" "$VM_NAME.qcow2" \
     && rm -f "$VM_NAME.img"
+
+# Generate OVA from disk image.
+COPY ovf.template ovf.template
+RUN qemu-img convert -f qcow2 -O vmdk -o subformat=streamOptimized "$VM_NAME.qcow2" "$VM_NAME.vmdk" \
+    && sed "\
+        s/{{ vm_id }}/$VM_NAME/g;\
+        s/{{ disk_size }}/8589934592/g;\
+        s/{{ disk_uuid }}/$(uuid)/g;\
+    " < ovf.template > "$VM_NAME.ovf" \
+    && tar -cv --format=ustar -f "$VM_NAME.ova" "$VM_NAME.ovf" "$VM_NAME.vmdk" \
+    && rm -f "$VM_NAME.vmdk"
