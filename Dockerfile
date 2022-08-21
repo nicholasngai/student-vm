@@ -139,10 +139,13 @@ RUN git clone -b 0.25.0 --depth=1 https://github.com/junegunn/fzf.git "$STUDENT_
     && chroot root chown -R "$STUDENT_USER:$STUDENT_USER" "$STUDENT_HOME_CHROOT/.fzf" \
     && chroot root su -l -c '~/.fzf/install --no-update-rc --no-completion --key-bindings' "$STUDENT_USER"
 
+ARG GROUP0_REPO=https://github.com/Berkeley-CS162/group0-su22.git
+ARG STUDENT0_REPO=https://github.com/Berkeley-CS162/student0-su22.git
+
 # Clone code repos.
 RUN mkdir -p "$STUDENT_HOME/code" \
-    && git clone -o staff https://github.com/Berkeley-CS162/group0.git "$STUDENT_HOME/code/group" \
-    && git clone -o staff https://github.com/Berkeley-CS162/student0.git "$STUDENT_HOME/code/student" \
+    && git clone -o staff "$GROUP0_REPO" "$STUDENT_HOME/code/group" \
+    && git clone -o staff "$STUDENT0_REPO" "$STUDENT_HOME/code/personal" \
     && chroot root chown -R "$STUDENT_USER:$STUDENT_USER" "$STUDENT_HOME_CHROOT/code"
 
 # General configuration.
