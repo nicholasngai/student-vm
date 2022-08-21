@@ -81,6 +81,7 @@ RUN chroot root apt-get install -y \
         libx11-dev \
         libxrandr-dev \
         libxrandr2 \
+        man-db \
         python3 \
         python3-pip \
         qemu-system-x86 \
