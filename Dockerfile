@@ -86,6 +86,7 @@ RUN chroot root apt-get install -y \
         qemu-system-x86 \
         rust-all \
         samba \
+        openssh-server \
         silversearcher-ag \
         sudo \
         tmux \
@@ -101,7 +102,8 @@ RUN chroot root apt-get install -y \
 
 # Enable servers.
 RUN chroot root systemctl enable \
-    smbd
+    smbd \
+    ssh
 
 # Download and build bochs.
 ARG BOCHS_VERSION=2.6.7
