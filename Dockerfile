@@ -3,8 +3,6 @@
 FROM ubuntu:22.04
 
 ARG VM_NAME=cs162-student-vm
-ARG VM_IMG_RAW=$VM_NAME.img
-ARG VM_IMG_QCOW2=$VM_NAME.qcow2
 
 WORKDIR /$VM_NAME
 
@@ -192,26 +190,26 @@ poweroff -f\n\
 # MiB, so we're working in sectors. There are 2048 sectors in 1 MiB, so the
 # ith MiB is $(( i * 2048 )). Also, parted uses inclusive ranges, so we use
 # $(( i * 2048 - 1 )) for all the end sectors.
-RUN dd if=/dev/zero of="$VM_IMG_RAW".rootfs bs=1M count=8175 \
-    && mkfs.ext4 -U $(cat rootfs-uuid) -d root "$VM_IMG_RAW".rootfs \
-    && dd if=/dev/zero of="$VM_IMG_RAW" bs=1M count=1 \
-    && dd if=/dev/zero of="$VM_IMG_RAW" bs=1M seek=1 count=15 \
-    && dd if="$VM_IMG_RAW".rootfs of="$VM_IMG_RAW" bs=1M seek=16 \
-    && dd if=/dev/zero of="$VM_IMG_RAW" bs=1M seek=8191 count=1 \
-    && parted -s -- "$VM_IMG_RAW" \
+RUN dd if=/dev/zero of="$VM_NAME.img.rootfs" bs=1M count=8175 \
+    && mkfs.ext4 -U $(cat rootfs-uuid) -d root "$VM_NAME.img".rootfs \
+    && dd if=/dev/zero of="$VM_NAME.img" bs=1M count=1 \
+    && dd if=/dev/zero of="$VM_NAME.img" bs=1M seek=1 count=15 \
+    && dd if="$VM_NAME.img.rootfs" of="$VM_NAME.img" bs=1M seek=16 \
+    && dd if=/dev/zero of="$VM_NAME.img" bs=1M seek=8191 count=1 \
+    && parted -s -- "$VM_NAME.img" \
         mklabel gpt \
         mkpart bios fat32 $(( 1 * 2048 ))s $(( 16 * 2048 - 1 ))s \
         set 1 bios_grub on \
         mkpart root ext4 $(( 16 * 2048 ))s $(( 8191 * 2048 - 1 ))s \
-    && rm -f "$VM_IMG_RAW".rootfs \
+    && rm -f "$VM_NAME.img.rootfs" \
 # Execute the earlier-inserted install-grub script by booting the image via \
 # QEMU using the rootfs's kernel and initrd. \
     && qemu-system-x86_64 \
         -m 512M \
         -nographic \
-        -drive if=virtio,format=raw,file="$VM_IMG_RAW" \
+        -drive if=virtio,format=raw,file="$VM_NAME.img" \
         -kernel root/boot/vmlinuz \
         -initrd root/boot/initrd.img \
         -append "console=ttyS0 root=UUID=$(cat rootfs-uuid) init=/install-grub" \
-    && qemu-img convert -f raw -O qcow2 "$VM_IMG_RAW" "$VM_IMG_QCOW2" \
-    && rm -f "$VM_IMG_RAW"
+    && qemu-img convert -f raw -O qcow2 "$VM_NAME.img" "$VM_NAME.qcow2" \
+    && rm -f "$VM_NAME.img"
