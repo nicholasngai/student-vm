@@ -145,6 +145,9 @@ RUN mkdir -p "$STUDENT_HOME/code" \
     && git clone -o staff https://github.com/Berkeley-CS162/student0.git "$STUDENT_HOME/code/student" \
     && chroot root chown -R "$STUDENT_USER:$STUDENT_USER" "$STUDENT_HOME_CHROOT/code"
 
+# General configuration.
+RUN rm -f root/etc/localtime && ln -s /usr/share/zoneinfo/America/Los_Angeles root/etc/localtime
+
 # Add custom files and fix ownership of all user files.
 COPY slash root/
 RUN chroot root chown -R "$STUDENT_USER:$STUDENT_USER" "$STUDENT_HOME_CHROOT"
