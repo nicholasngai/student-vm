@@ -1,11 +1,12 @@
 OUT_DIR = out
 IMAGE_FILE_QCOW2 = $(OUT_DIR)/cs162-student-vm.qcow2
+IMAGE_FILE_OVA = $(OUT_DIR)/cs162-student-vm.ova
 
 DOCKER_IMAGE_NAME = cs162-student-vm
 DOCKER_CONTAINER_NAME = cs162-student-vm
 
 .PHONY: all
-all: $(IMAGE_FILE_QCOW2)
+all: $(IMAGE_FILE_QCOW2) $(IMAGE_FILE_OVA)
 	$(MAKE) dockerkill
 
 # Touch the directory so it's up to date.
@@ -13,9 +14,13 @@ $(OUT_DIR):
 	mkdir -p $(OUT_DIR)
 	touch $(OUT_DIR)
 
-# Copy the image from the docker container to the filesystem.
+# Copy the QCOW2 image from the docker container to the filesystem.
 $(IMAGE_FILE_QCOW2): $(OUT_DIR) dockerstart
 	docker cp $(DOCKER_CONTAINER_NAME):/cs162-student-vm/cs162-student-vm.qcow2 $(IMAGE_FILE_QCOW2)
+
+# Copy the OVA image from the docker container to the filesystem.
+$(IMAGE_FILE_OVA): $(OUT_DIR) dockerstart
+	docker cp $(DOCKER_CONTAINER_NAME):/cs162-student-vm/cs162-student-vm.ova $(IMAGE_FILE_OVA)
 
 .PHONY: dockerstart
 dockerstart:
